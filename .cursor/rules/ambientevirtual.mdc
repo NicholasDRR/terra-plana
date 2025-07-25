@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+Sempre ao instalar pacotes ou dependências tente utilizar a venv local
