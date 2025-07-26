@@ -1,22 +1,4 @@
-# Dockerfile Multi-Stage Otimizado para Railway
-# Stage 1: Build do Frontend React
-FROM node:18-alpine as frontend-builder
-
-WORKDIR /app/frontend
-
-# Copiar package.json e instalar dependências
-COPY frontend/package*.json ./
-RUN npm ci --only=production --no-audit --no-fund
-
-# Copiar código do frontend
-COPY frontend/ ./
-
-# Build do React para produção (otimizado)
-ENV NODE_ENV=production
-ENV GENERATE_SOURCEMAP=false
-RUN npm run build
-
-# Stage 2: Backend Python + Servir Frontend
+# Dockerfile Simplificado para Railway
 FROM python:3.11-slim
 
 # Configurar timezone
@@ -44,8 +26,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copiar código da aplicação
 COPY app/ ./app/
 
-# Copiar build do frontend do stage anterior
-COPY --from=frontend-builder /app/frontend/build ./app/static
+# Copiar build do frontend (já buildado localmente)
+COPY frontend/build ./app/static
 
 # Criar diretório para arquivos temporários
 RUN mkdir -p /tmp/audio && chown -R app:app /tmp/audio /app
