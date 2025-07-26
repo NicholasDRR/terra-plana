@@ -239,7 +239,7 @@ CREATE INDEX idx_chat_messages_session ON chat_messages(session_id, timestamp);
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 👨‍💻 Desenvolvido por
+## 👨‍💻 Desenvolvido por NicholasDRR
 
 Criado como projeto educacional para demonstrar integração de IA com desenvolvimento web moderno.
 
