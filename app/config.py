@@ -47,6 +47,7 @@ class Settings:
         "https://*.up.railway.app",
         # Vercel (para frontend)
         "https://*.vercel.app",
+        "https://terra-plana-frontend.vercel.app",
         # Netlify (alternativa)
         "https://*.netlify.app",
         # Produção

@@ -1,4 +1,4 @@
-# Dockerfile Simplificado para Railway
+# Dockerfile Simplificado para Railway - Apenas Backend
 FROM python:3.11-slim
 
 # Configurar timezone
@@ -25,9 +25,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Copiar código da aplicação
 COPY app/ ./app/
-
-# Copiar build do frontend (já buildado localmente)
-COPY frontend/build ./app/static
 
 # Criar diretório para arquivos temporários
 RUN mkdir -p /tmp/audio && chown -R app:app /tmp/audio /app
