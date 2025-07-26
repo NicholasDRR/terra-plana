@@ -1,4 +1,4 @@
-# Dockerfile Multi-Stage para Railway
+# Dockerfile Multi-Stage Otimizado para Railway
 # Stage 1: Build do Frontend React
 FROM node:18-alpine as frontend-builder
 
@@ -6,12 +6,14 @@ WORKDIR /app/frontend
 
 # Copiar package.json e instalar dependências
 COPY frontend/package*.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production --no-audit --no-fund
 
 # Copiar código do frontend
 COPY frontend/ ./
 
-# Build do React para produção
+# Build do React para produção (otimizado)
+ENV NODE_ENV=production
+ENV GENERATE_SOURCEMAP=false
 RUN npm run build
 
 # Stage 2: Backend Python + Servir Frontend
@@ -21,12 +23,12 @@ FROM python:3.11-slim
 ENV TZ=America/Sao_Paulo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Instalar dependências do sistema necessárias
+# Instalar apenas dependências essenciais
 RUN apt-get update && apt-get install -y \
     gcc \
-    g++ \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Criar usuário não-root para segurança
 RUN useradd --create-home --shell /bin/bash app
@@ -54,9 +56,9 @@ USER app
 # Expor porta
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
+# Health check simplificado
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
 # Comando otimizado para produção
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--access-log", "--log-level", "info"] 
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"] 
