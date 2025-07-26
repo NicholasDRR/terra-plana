@@ -360,7 +360,7 @@ function App() {
   };
 
   const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? '' // Em produção, usa o mesmo domínio (Railway)
+    ? '' // Em produção, usar a mesma URL (mesmo domínio)
     : ''; // Usar proxy em desenvolvimento
 
   const generateSessionId = () => {

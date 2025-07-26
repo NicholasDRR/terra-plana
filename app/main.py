@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import logging
 import os
+from pathlib import Path
 
 from .config import settings
 from .routers import chat_router, health_router
@@ -40,41 +41,31 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
-# Incluir routers da API
+# Incluir routers
 app.include_router(health_router)
 app.include_router(chat_router)
 
-# Servir arquivos estáticos do frontend (React build)
-static_dir = "/app/static"
-if os.path.exists(static_dir):
-    # Montar arquivos estáticos (CSS, JS, etc.)
-    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+# Servir arquivos estáticos do React (se existirem)
+static_dir = Path(__file__).parent / "static"
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
     
-    from fastapi.responses import FileResponse
-    
-    # Rota específica para a raiz
+    # Servir index.html para rotas do React
     @app.get("/")
-    async def serve_frontend_root():
-        """Serve o index.html na raiz"""
-        index_file = os.path.join(static_dir, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
-        return JSONResponse(status_code=404, content={"detail": "Frontend not found"})
+    async def serve_react_app():
+        index_path = static_dir / "index.html"
+        if index_path.exists():
+            return FileResponse(str(index_path))
+        return {"message": "React app not found"}
     
-    # Catch-all para outras rotas do frontend (SPA routing)
     @app.get("/{full_path:path}")
-    async def serve_react_app(full_path: str):
-        """Serve o frontend React para todas as rotas que não são API"""
-        # Se é uma rota da API, deixa passar para o handler normal
-        if full_path.startswith(('api/', 'docs', 'redoc', 'openapi.json', 'health', 'chat')):
-            return JSONResponse(status_code=404, content={"detail": "API route not found"})
-        
-        # Para rotas do frontend, serve o index.html (SPA routing)
-        index_file = os.path.join(static_dir, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
-        
-        return JSONResponse(status_code=404, content={"detail": "Frontend not found"})
+    async def serve_react_routes(full_path: str):
+        # Se não for uma rota da API, servir index.html (SPA routing)
+        if not full_path.startswith(("api", "chat", "health", "docs", "openapi", "static")):
+            index_path = static_dir / "index.html"
+            if index_path.exists():
+                return FileResponse(str(index_path))
+        return {"message": "Route not found"}
 
 
 @app.exception_handler(Exception)

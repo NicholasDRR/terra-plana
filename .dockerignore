@@ -9,8 +9,9 @@ venv/
 env/
 .python-version
 
-# Node modules (será instalado no build)
-frontend/node_modules/
+# Frontend (mantido para build)
+# frontend/  # Comentado para permitir build no Docker
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

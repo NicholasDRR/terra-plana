@@ -1,15 +1,21 @@
-# Multi-stage build: Frontend + Backend
+# Dockerfile Multi-Stage para Railway
+# Stage 1: Build do Frontend React
 FROM node:18-alpine as frontend-builder
 
-# Build do Frontend React
-WORKDIR /frontend
+WORKDIR /app/frontend
+
+# Copiar package.json e instalar dependências
 COPY frontend/package*.json ./
 RUN npm ci --only=production
+
+# Copiar código do frontend
 COPY frontend/ ./
+
+# Build do React para produção
 RUN npm run build
 
-# Backend Python
-FROM python:3.11-slim as backend
+# Stage 2: Backend Python + Servir Frontend
+FROM python:3.11-slim
 
 # Configurar timezone
 ENV TZ=America/Sao_Paulo
@@ -36,14 +42,13 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copiar código da aplicação
 COPY app/ ./app/
 
-# Copiar build do frontend da etapa anterior
-COPY --from=frontend-builder /frontend/build ./static
+# Copiar build do frontend do stage anterior
+COPY --from=frontend-builder /app/frontend/build ./app/static
 
 # Criar diretório para arquivos temporários
-RUN mkdir -p /tmp/audio && chown -R app:app /tmp/audio
+RUN mkdir -p /tmp/audio && chown -R app:app /tmp/audio /app
 
 # Mudar para usuário não-root
-RUN chown -R app:app /app
 USER app
 
 # Expor porta
