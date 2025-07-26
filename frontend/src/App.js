@@ -590,7 +590,7 @@ function App() {
     }, 45000);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/chat`, {
+      const response = await axios.post(`${API_BASE_URL}/chat/`, {
         message: inputMessage
       }, {
         headers: {
