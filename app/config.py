@@ -34,14 +34,23 @@ class Settings:
     SUPABASE_URL = os.getenv("SUPABASE_URL")
     SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY")
     
-    # CORS
+    # CORS - incluindo Railway e outras plataformas
     ALLOWED_ORIGINS = [
         "http://localhost:3000",
         "http://localhost:3001", 
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
         "http://localhost",
-        "http://127.0.0.1"
+        "http://127.0.0.1",
+        # Railway
+        "https://*.railway.app",
+        "https://*.up.railway.app",
+        # Vercel (para frontend)
+        "https://*.vercel.app",
+        # Netlify (alternativa)
+        "https://*.netlify.app",
+        # Produção
+        "*"  # Para facilitar, mas deve ser especificado em produção real
     ]
     
     # Personalização do personagem

@@ -105,12 +105,20 @@ const LoadingMessage = () => (
   </div>
 );
 
-const AudioControls = ({ 
-  isRecording, 
-  isAudioSupported, 
-  recordingTime, 
-  onStartRecording, 
-  onStopRecording 
+
+
+const ChatInput = ({ 
+  value, 
+  onChange, 
+  onSend, 
+  onClear, 
+  disabled,
+  placeholder = "Digite sua pergunta sobre a teoria da Terra Plana...",
+  isRecording,
+  isAudioSupported,
+  recordingTime,
+  onStartRecording,
+  onStopRecording
 }) => {
   const formatRecordingTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -119,110 +127,137 @@ const AudioControls = ({
   };
 
   return (
-    <div className="px-6 py-3 border-t border-white/[0.08] bg-white/[0.02]">
-      <div className="flex items-center justify-center gap-4">
-        <div className="text-xs text-white/60">
-          {isAudioSupported ? '🎤 Áudio disponível' : '❌ Áudio não suportado'}
-        </div>
+    <div className="p-6 border-t border-white/[0.08] flex-shrink-0">
+      <div className="relative rounded-2xl border border-white/[0.08] bg-white/[0.02] focus-within:border-violet-500/50 transition-colors">
+        <textarea
+          value={value}
+          onChange={onChange}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              onSend();
+            }
+          }}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="w-full px-4 py-4 bg-transparent border-none resize-none text-white/90 placeholder-white/40 focus:outline-none text-sm leading-relaxed min-h-[60px] max-h-32"
+        />
         
-        {isAudioSupported && (
-          <button
-            onClick={isRecording ? onStopRecording : onStartRecording}
-            className={`
-              relative p-3 rounded-full transition-all duration-300 transform hover:scale-105
-              ${isRecording 
-                ? 'bg-gradient-to-r from-red-500 to-red-600 shadow-lg shadow-red-500/25' 
-                : 'bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/25'
-              }
-            `}
-          >
-            {isRecording ? (
-              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <rect x="6" y="6" width="12" height="12" rx="2"/>
-              </svg>
-            ) : (
-              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-                <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
-                <path d="M12 18v4"/>
-                <path d="M8 22h8"/>
-              </svg>
+        <div className="flex items-center justify-between p-4 pt-0">
+          <div className="flex items-center gap-4">
+            <div className="text-xs text-white/40">
+              Enter para enviar • Shift+Enter para quebra de linha
+            </div>
+            
+            {/* Indicador de gravação */}
+            {isRecording && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
+                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-red-400 font-medium">
+                  {formatRecordingTime(recordingTime)}
+                </span>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {/* Botão de áudio moderno */}
+            {isAudioSupported && (
+              <div className="relative">
+                <button
+                  onClick={isRecording ? onStopRecording : onStartRecording}
+                  disabled={disabled}
+                  className={`
+                    relative p-3 rounded-2xl transition-all duration-500 transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed group
+                    ${isRecording 
+                      ? 'bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-2xl shadow-red-500/40 animate-pulse' 
+                      : 'bg-gradient-to-br from-blue-500 via-purple-600 to-violet-700 shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50'
+                    }
+                    backdrop-blur-lg border border-white/20
+                  `}
+                  title={isRecording ? 'Parar gravação' : 'Gravar áudio'}
+                >
+                  {/* Anéis de ondas sonoras */}
+                  {isRecording && (
+                    <>
+                      <div className="absolute inset-0 rounded-2xl border-2 border-red-300/50 animate-ping animation-delay-0"></div>
+                      <div className="absolute inset-0 rounded-2xl border-2 border-red-200/30 animate-ping animation-delay-150"></div>
+                      <div className="absolute inset-0 rounded-2xl border-2 border-red-100/20 animate-ping animation-delay-300"></div>
+                    </>
+                  )}
+                  
+                  {/* Ícone principal */}
+                  <div className="relative z-10">
+                    {isRecording ? (
+                      <div className="flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                          <rect x="8" y="8" width="8" height="8" rx="1"/>
+                        </svg>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                          <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+                          <path d="M12 18v4"/>
+                          <path d="M8 22h8"/>
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Efeito de brilho */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-transparent via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </button>
+                
+                {/* Indicador de status */}
+                {isRecording && (
+                  <div className="absolute -top-2 -right-2 flex items-center justify-center w-6 h-6 bg-red-500 rounded-full border-2 border-white shadow-lg">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  </div>
+                )}
+                
+                {/* Ondas sonoras decorativas */}
+                {!isRecording && (
+                  <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-60 transition-all duration-300">
+                    <div className="flex items-center gap-1">
+                      <div className="w-1 h-2 bg-gradient-to-t from-purple-400 to-blue-400 rounded-full animate-bounce animation-delay-0"></div>
+                      <div className="w-1 h-3 bg-gradient-to-t from-purple-400 to-blue-400 rounded-full animate-bounce animation-delay-75"></div>
+                      <div className="w-1 h-1 bg-gradient-to-t from-purple-400 to-blue-400 rounded-full animate-bounce animation-delay-150"></div>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
             
-            {isRecording && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
-            )}
-          </button>
-        )}
-        
-        {isRecording && (
-          <div className="flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full">
-            <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-            <span className="text-xs text-red-400 font-medium">
-              {formatRecordingTime(recordingTime)}
-            </span>
+            {/* Botão Limpar */}
+            <button
+              onClick={onClear}
+              className="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 transition-all text-sm font-medium"
+            >
+              Limpar
+            </button>
+            
+            {/* Botão Enviar */}
+            <button
+              onClick={onSend}
+              disabled={disabled || !value.trim()}
+              className={`
+                px-6 py-2 rounded-xl text-sm font-medium transition-all
+                ${value.trim() && !disabled
+                  ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transform hover:scale-105'
+                  : 'bg-white/[0.05] border border-white/[0.08] text-white/40 cursor-not-allowed'
+                }
+              `}
+            >
+              {disabled ? 'Enviando...' : 'Enviar'}
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 };
-
-const ChatInput = ({ 
-  value, 
-  onChange, 
-  onSend, 
-  onClear, 
-  disabled,
-  placeholder = "Digite sua pergunta sobre a teoria da Terra Plana..."
-}) => (
-  <div className="p-6 border-t border-white/[0.08]">
-    <div className="relative rounded-2xl border border-white/[0.08] bg-white/[0.02] focus-within:border-violet-500/50 transition-colors">
-      <textarea
-        value={value}
-        onChange={onChange}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            onSend();
-          }
-        }}
-        placeholder={placeholder}
-        disabled={disabled}
-        className="w-full px-4 py-4 bg-transparent border-none resize-none text-white/90 placeholder-white/40 focus:outline-none text-sm leading-relaxed min-h-[60px] max-h-32"
-      />
-      
-      <div className="flex items-center justify-between p-4 pt-0">
-        <div className="text-xs text-white/40">
-          Enter para enviar • Shift+Enter para quebra de linha
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onClear}
-            className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.08] text-white/70 hover:text-white/90 transition-all text-sm font-medium"
-          >
-            Limpar
-          </button>
-          
-          <button
-            onClick={onSend}
-            disabled={disabled || !value.trim()}
-            className={`
-              px-6 py-2 rounded-xl text-sm font-medium transition-all
-              ${value.trim() && !disabled
-                ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transform hover:scale-105'
-                : 'bg-white/[0.05] border border-white/[0.08] text-white/40 cursor-not-allowed'
-              }
-            `}
-          >
-            {disabled ? 'Enviando...' : 'Enviar'}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 
 const WelcomeMessage = () => (
   <div className="text-center py-12 animate-fade-in">
@@ -265,6 +300,23 @@ const StatusBar = ({ apiStatus, isAudioSupported }) => (
   </div>
 );
 
+const ScrollToBottomButton = ({ onClick, show }) => {
+  if (!show) return null;
+  
+  return (
+    <div className="absolute bottom-4 right-4 z-10">
+      <button
+        onClick={onClick}
+        className="p-3 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 transform hover:scale-105"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+      </button>
+    </div>
+  );
+};
+
 function App() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -279,13 +331,32 @@ function App() {
   const [isAudioSupported, setIsAudioSupported] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   
+  // Estados para controle de scroll
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const loadingTimerRef = useRef(null);
   const recordingTimerRef = useRef(null);
   const streamRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (force = false) => {
+    if (force || isNearBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleScroll = () => {
+    if (!messagesContainerRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    const threshold = 100; // pixels do final para considerar "próximo ao final"
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    
+    const nearBottom = distanceFromBottom <= threshold;
+    setIsNearBottom(nearBottom);
+    setShowScrollButton(!nearBottom && messages.length > 0);
   };
 
   const API_BASE_URL = process.env.NODE_ENV === 'production' 
@@ -596,11 +667,22 @@ function App() {
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    // Só faz scroll automático se estiver próximo ao final ou se for a primeira mensagem
+    if (messages.length <= 1 || isNearBottom) {
+      setTimeout(() => scrollToBottom(true), 100);
+    }
+  }, [messages.length]);
+
+  // Detecta quando o usuário envia uma mensagem para fazer scroll automático
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.role === 'user') {
+      scrollToBottom(true);
+    }
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex flex-col items-center justify-center p-4">
+    <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex flex-col p-4">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full mix-blend-normal filter blur-[128px] animate-pulse" />
@@ -608,8 +690,9 @@ function App() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/5 rounded-full mix-blend-normal filter blur-[96px] animate-pulse" style={{animationDelay: '2s'}} />
       </div>
       
-      <div className="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] shadow-2xl shadow-black/20">
-        <div className="px-6 py-4 flex items-center justify-between border-b border-white/[0.08] bg-gradient-to-r from-violet-500/10 to-purple-500/10">
+      <div className="w-full max-w-4xl mx-auto flex flex-col h-full rounded-2xl overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] shadow-2xl shadow-black/20">
+        {/* Cabeçalho Fixo */}
+        <div className="px-6 py-4 flex items-center justify-between border-b border-white/[0.08] bg-gradient-to-r from-violet-500/10 to-purple-500/10 flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="w-12 h-12 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 flex items-center justify-center shadow-lg shadow-violet-500/25">
@@ -631,7 +714,8 @@ function App() {
           </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 h-[500px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+        {/* Área de Mensagens com Altura Flexível */}
+        <div className="relative flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent" ref={messagesContainerRef} onScroll={handleScroll}>
           {messages.length === 0 && <WelcomeMessage />}
           
           {messages.map((message) => (
@@ -645,26 +729,25 @@ function App() {
           {isLoading && <LoadingMessage />}
           
           <div ref={messagesEndRef} />
+          
+          <ScrollToBottomButton onClick={() => scrollToBottom(true)} show={showScrollButton} />
         </div>
         
-        {isAudioSupported && (
-          <AudioControls
-            isRecording={isRecording}
-            isAudioSupported={isAudioSupported}
-            recordingTime={recordingTime}
-            onStartRecording={startRecording}
-            onStopRecording={stopRecording}
-          />
-        )}
-        
+        {/* Área de Input Fixa */}
         <ChatInput
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onSend={sendMessage}
           onClear={clearHistory}
           disabled={isLoading}
+          isRecording={isRecording}
+          isAudioSupported={isAudioSupported}
+          recordingTime={recordingTime}
+          onStartRecording={startRecording}
+          onStopRecording={stopRecording}
         />
         
+        {/* Status Bar Fixo */}
         <StatusBar apiStatus={apiStatus} isAudioSupported={isAudioSupported} />
       </div>
     </div>
