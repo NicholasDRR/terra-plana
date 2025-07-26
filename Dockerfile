@@ -1,5 +1,15 @@
-# Dockerfile otimizado para Railway
-FROM python:3.11-slim as builder
+# Multi-stage build: Frontend + Backend
+FROM node:18-alpine as frontend-builder
+
+# Build do Frontend React
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm ci --only=production
+COPY frontend/ ./
+RUN npm run build
+
+# Backend Python
+FROM python:3.11-slim as backend
 
 # Configurar timezone
 ENV TZ=America/Sao_Paulo
@@ -25,6 +35,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Copiar código da aplicação
 COPY app/ ./app/
+
+# Copiar build do frontend da etapa anterior
+COPY --from=frontend-builder /frontend/build ./static
 
 # Criar diretório para arquivos temporários
 RUN mkdir -p /tmp/audio && chown -R app:app /tmp/audio

@@ -360,7 +360,7 @@ function App() {
   };
 
   const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? 'http://localhost:8000' 
+    ? '' // Em produção, usa o mesmo domínio (Railway)
     : ''; // Usar proxy em desenvolvimento
 
   const generateSessionId = () => {
