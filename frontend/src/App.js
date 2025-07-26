@@ -360,7 +360,7 @@ function App() {
   };
 
   const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? '' // Em produção, usar a mesma URL (mesmo domínio)
+    ? process.env.REACT_APP_API_URL || '' // Em produção, usar API URL configurada no Vercel
     : ''; // Usar proxy em desenvolvimento
 
   const generateSessionId = () => {
